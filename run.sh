@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
+puppetModules_toInstall=(
+	"stankevich-python"
+)
+
 main() {
 	printMessage "Configuring base system..."
 	baseSystem
+	printMessage "Installing Puppet modules..."
+	puppetModules
 	printMessage "Running Puppet manifests..."
 	executeScripts .
-	printMessage "Complete."
+	printMessage "Complete!"
 }
 
 printMessage() {
@@ -13,9 +19,19 @@ printMessage() {
 }
 
 baseSystem() {
+	printMessage " - Installing base packages..."
+	yum -y install vim git
 	printMessage " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
-	printMessage " - Done"
+	print printMessage " - Installing Puppet..."
+	yum -y install puppet
+	printMessage " - Done!"
+}
+
+puppetModules() {
+	for module in ${puppetModules_toInstall[@]}; do
+		puppet module install "$module"
+	done
 }
 
 executeScripts() {
@@ -28,7 +44,7 @@ executeScripts() {
 			exit 1
 		fi
 	done
-	printMessage " - Done"
+	printMessage " - Done!"
 }
 
 main
