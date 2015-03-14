@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 puppetModules_toInstall=(
+	"stahnma-epel"
 	"stankevich-python"
 )
 
@@ -20,18 +21,20 @@ printMessage() {
 
 baseSystem() {
 	printMessage " - Installing base packages..."
-	yum -y install vim git
+	yum -d 0 -e 0 -y install vim git
 	printMessage " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
 	print printMessage " - Installing Puppet..."
-	yum -y install puppet
+	yum -d 0 -e 0 -y install puppet
 	printMessage " - Done!"
 }
 
 puppetModules() {
 	for module in ${puppetModules_toInstall[@]}; do
+		printMessage " - Installing $module"
 		puppet module install "$module"
 	done
+	printMessage " - Done!"
 }
 
 executeScripts() {

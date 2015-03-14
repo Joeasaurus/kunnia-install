@@ -1,5 +1,7 @@
 ### System ###
 
+class {'epel':}
+
 # Install Python 3.3
 class { 'python' :
 	version    => '3.3',
@@ -7,4 +9,6 @@ class { 'python' :
 	dev        => true,
 	virtualenv => true,
 	gunicorn   => false,
+
+	require    => Class['epel']
 }
