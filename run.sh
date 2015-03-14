@@ -2,7 +2,7 @@
 
 puppetModules_toInstall=(
 	"stahnma-epel"
-	"stankevich-python"
+	"yguenane-repoforge"
 )
 
 main() {
@@ -21,12 +21,28 @@ printMessage() {
 
 baseSystem() {
 	printMessage " - Installing base packages..."
-	yum -d 0 -e 0 -y install vim git
+	yum -d 0 -e 0 -y groupinstall "Development Tools"
+	yum -d 0 -e 0 -y install vim git wget
+
 	printMessage " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
 	print printMessage " - Installing Puppet..."
 	yum -d 0 -e 0 -y install puppet
+
+	printMessage " - Installing dev tools..."
+	installPython
+
 	printMessage " - Done!"
+}
+
+installPython() {
+	# Python 3.3.5:
+	wget http://python.org/ftp/python/3.3.5/Python-3.3.5.tar.xz
+	tar xf Python-3.3.5.tar.xz
+	cd Python-3.3.5
+	./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+	make && make altinstall
+	rm -rf ./Python*
 }
 
 puppetModules() {
