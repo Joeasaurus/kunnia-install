@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-BB_LOG_USE_COLOR=true
+export BB_LOG_USE_COLOR=true
+export BB_LOG_LEVEL=INFO
 
 puppetModules_toInstall=(
 	"stahnma-epel"
@@ -8,8 +9,6 @@ puppetModules_toInstall=(
 )
 
 main() {
-	echo "[KUNNIA] Installing BashBooster..."
-	installBashBooster
 	bb-log-info "Configuring base system..."
 	baseSystem
 	bb-log-info "Installing Puppet modules..."
@@ -26,14 +25,16 @@ installBashBooster() {
 	./install.sh
 	popd
 	rm -rf ./bashbooster*
-	source /usr/local/lib/bashbooster/bashbooster.sh
 }
 
 baseSystem() {
-	bb-log-debug " - Installing base packages..."
+	bb-log-debug " - Preparing Yum..."
 	yum groups mark convert
+	yum groups mark install
+
+	bb-log-debug " - Installing base packages..."
 	yum -d 0 -e 0 -y groupinstall "Development tools"
-	yum -d 0 -e 0 -y install vim git wget
+	yum -d 0 -e 0 -y install vim git wget zlib-devel
 
 	bb-log-debug " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
@@ -48,13 +49,36 @@ baseSystem() {
 
 installPython() {
 	# Python 3.3.5:
-	if [[ -z "$(command -v python3.3)" ]]; then
+	if ! bb-exe? python3.3; then
+		bb-log-debug " -- Installing Python 3.3.5..."
 		wget http://python.org/ftp/python/3.3.5/Python-3.3.5.tar.xz
 		tar xf Python-3.3.5.tar.xz
 		pushd Python-3.3.5
-		./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+		./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" –with-zlib=/usr/include
 		make && make altinstall
 		popd && rm -rf ./Python*
+	fi
+
+	# Setuptools and pip
+	if ! bb-exe? easy_install-3.3; then
+		bb-log-debug " -- Installing Setuptools..."
+		# First get the setup script for Setuptools:
+		wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
+
+		# Then install it for Python 2.7 and/or Python 3.3:
+		python2.7 ez_setup.py
+		bb-exit-on-error 1 "Failed to install easy_install-2.7!"
+		python3.3 ez_setup.py
+		bb-exit-on-error 1 "Failed to install easy_install-3.3!"
+
+	 	if ! bb-exe? pip3.3; then
+	 		bb-log-debug " -- Installing pip..."
+			# Now install pip using the newly installed setuptools:
+			easy_install-2.7 pip
+			bb-exit-on-error 1 "Failed to install pip2.7!"
+			easy_install-3.3 pip
+			bb-exit-on-error 1 "Failed to install pip3.3!"
+		fi
 	fi
 }
 
@@ -70,10 +94,15 @@ executeScripts() {
 	local dir="$1"
 	for puppetFile in $(ls $dir); do
 		bb-log-debug " - Applying $puppetFile..."
-		puppet apply "$puppetFile"
+		puppet apply "$dir/$puppetFile"
 		bb-exit-on-error 1 "Puppet apply failed!"
 	done
 	bb-log-debug " - Done!"
 }
 
+if [[ -f "/usr/local/lib/bashbooster/bashbooster.sh" ]]; then
+        source "/usr/local/lib/bashbooster/bashbooster.sh"
+else
+        installBashBooster
+fi
 main
