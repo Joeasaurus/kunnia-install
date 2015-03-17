@@ -33,7 +33,9 @@ baseSystem() {
 
 	bb-log-debug " - Installing base packages..."
 	yum -d 0 -e 0 -y groupinstall "Development tools"
-	yum -d 0 -e 0 -y install vim git wget zlib-devel
+	yum -d 0 -e 0 -y install \
+		vim git wget \
+		zlib-devel openssl-devel
 
 	bb-log-debug " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
@@ -53,10 +55,11 @@ installPython() {
 		wget http://python.org/ftp/python/3.3.5/Python-3.3.5.tar.xz
 		tar xf Python-3.3.5.tar.xz
 		pushd Python-3.3.5
-		./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" –with-zlib=/usr/include
+		./configure --prefix=/usr/local --with-zlib=/usr/include --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
 		make && make altinstall
 		popd && rm -rf ./Python*
 	fi
+	bb-exit-on-error 1 "Failed to install Python 3.3.5!"
 
 	# Setuptools and pip
 	if ! bb-exe? easy_install-3.3; then
