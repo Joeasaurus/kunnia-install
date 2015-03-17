@@ -1,39 +1,49 @@
 #!/usr/bin/env bash
 
+BB_LOG_USE_COLOR=true
+
 puppetModules_toInstall=(
 	"stahnma-epel"
 	"yguenane-repoforge"
 )
 
 main() {
-	printMessage "Configuring base system..."
+	echo "[KUNNIA] Installing BashBooster..."
+	installBashBooster
+	bb-log-info "Configuring base system..."
 	baseSystem
-	printMessage "Installing Puppet modules..."
+	bb-log-info "Installing Puppet modules..."
 	puppetModules
-	printMessage "Running Puppet manifests..."
-	executeScripts .
-	printMessage "Complete!"
+	bb-log-info "Running Puppet manifests..."
+	executeScripts puppet
+	bb-exit 0 "Complete!"
 }
 
-printMessage() {
-	echo "[KunInst] $1"
+installBashBooster() {
+	wget https://bitbucket.org/kr41/bash-booster/downloads/bashbooster-0.3beta.zip
+	unzip bashbooster-0.3beta.zip
+	pushd bashbooster-0.3beta
+	./install.sh
+	popd
+	rm -rf ./bashbooster*
+	source /usr/local/lib/bashbooster/bashbooster.sh
 }
 
 baseSystem() {
-	printMessage " - Installing base packages..."
+	bb-log-debug " - Installing base packages..."
 	yum groups mark convert
 	yum -d 0 -e 0 -y groupinstall "Development tools"
 	yum -d 0 -e 0 -y install vim git wget
 
-	printMessage " - Installing Puppet repository..."
+	bb-log-debug " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
-	print printMessage " - Installing Puppet..."
+	bb-log-debug " - Installing Puppet..."
 	yum -d 0 -e 0 -y install puppet
 
-	printMessage " - Installing dev tools..."
+	bb-log-debug " - Installing dev tools..."
 	installPython
 
-	printMessage " - Done!"
+	bb-log-debug " - Done!"
 }
 
 installPython() {
@@ -50,23 +60,20 @@ installPython() {
 
 puppetModules() {
 	for module in ${puppetModules_toInstall[@]}; do
-		printMessage " - Installing $module"
+		bb-log-debug " - Installing $module"
 		puppet module install "$module"
 	done
-	printMessage " - Done!"
+	bb-log-debug " - Done!"
 }
 
 executeScripts() {
 	local dir="$1"
 	for puppetFile in $(ls $dir); do
-		printMessage " - Applying $puppetFile..."
+		bb-log-debug " - Applying $puppetFile..."
 		puppet apply "$puppetFile"
-		if [[ $? -ne 0 ]]; then
-			printMessage "There was an error, exiting!"
-			exit 1
-		fi
+		bb-exit-on-error 1 "Puppet apply failed!"
 	done
-	printMessage " - Done!"
+	bb-log-debug " - Done!"
 }
 
 main
