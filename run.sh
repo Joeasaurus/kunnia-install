@@ -72,15 +72,15 @@ installPython() {
 		bb-exit-on-error 1 "Failed to install easy_install-2.7!"
 		python3.3 ez_setup.py
 		bb-exit-on-error 1 "Failed to install easy_install-3.3!"
+	fi
 
-	 	if ! bb-exe? pip3.3; then
-	 		bb-log-debug " -- Installing pip..."
-			# Now install pip using the newly installed setuptools:
-			easy_install-2.7 pip
-			bb-exit-on-error 1 "Failed to install pip2.7!"
-			easy_install-3.3 pip
-			bb-exit-on-error 1 "Failed to install pip3.3!"
-		fi
+ 	if ! bb-exe? pip3.3; then
+ 		bb-log-debug " -- Installing pip..."
+		# Now install pip using the newly installed setuptools:
+		easy_install-2.7 pip
+		bb-exit-on-error 1 "Failed to install pip2.7!"
+		easy_install-3.3 pip
+		bb-exit-on-error 1 "Failed to install pip3.3!"
 	fi
 }
 
