@@ -21,7 +21,8 @@ printMessage() {
 
 baseSystem() {
 	printMessage " - Installing base packages..."
-	yum -d 0 -e 0 -y groupinstall "Development Tools"
+	yum groups mark convert
+	yum -d 0 -e 0 -y groupinstall "Development tools"
 	yum -d 0 -e 0 -y install vim git wget
 
 	printMessage " - Installing Puppet repository..."
@@ -37,12 +38,14 @@ baseSystem() {
 
 installPython() {
 	# Python 3.3.5:
-	wget http://python.org/ftp/python/3.3.5/Python-3.3.5.tar.xz
-	tar xf Python-3.3.5.tar.xz
-	cd Python-3.3.5
-	./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
-	make && make altinstall
-	rm -rf ./Python*
+	if [[ -z "$(command -v python3.3)" ]]; then
+		wget http://python.org/ftp/python/3.3.5/Python-3.3.5.tar.xz
+		tar xf Python-3.3.5.tar.xz
+		pushd Python-3.3.5
+		./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+		make && make altinstall
+		popd && rm -rf ./Python*
+	fi
 }
 
 puppetModules() {
