@@ -30,7 +30,6 @@ installBashBooster() {
 baseSystem() {
 	bb-log-debug " - Preparing Yum..."
 	yum groups mark convert
-	yum groups mark install
 
 	bb-log-debug " - Installing base packages..."
 	yum -d 0 -e 0 -y groupinstall "Development tools"
