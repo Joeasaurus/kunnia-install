@@ -5,7 +5,6 @@ export BB_LOG_LEVEL=INFO
 
 puppetModules_toInstall=(
 	"stahnma-epel"
-	"yguenane-repoforge"
 	"stankevich-python"
 	"shr3kst3r-glacier"
 
