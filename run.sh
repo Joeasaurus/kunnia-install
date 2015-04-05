@@ -78,8 +78,8 @@ installPython() {
 		bb-exit-on-error 1 "Failed to install easy_install-3.3!"
 	fi
 
- 	if ! bb-exe? pip3.3; then
- 		bb-log-debug " -- Installing pip..."
+	if ! bb-exe? pip3.3; then
+		bb-log-debug " -- Installing pip..."
 		# Now install pip using the newly installed setuptools:
 		easy_install-2.7 pip
 		bb-exit-on-error 1 "Failed to install pip2.7!"
@@ -114,9 +114,8 @@ executeScripts() {
 	bb-log-debug " - Done!"
 }
 
-if [[ -f "/usr/local/lib/bashbooster/bashbooster.sh" ]]; then
-        source "/usr/local/lib/bashbooster/bashbooster.sh"
-else
-        installBashBooster
+if [[ ! -f "/usr/local/lib/bashbooster/bashbooster.sh" ]]; then
+	installBashBooster
 fi
+source "/usr/local/lib/bashbooster/bashbooster.sh"
 main
