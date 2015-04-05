@@ -6,6 +6,9 @@ export BB_LOG_LEVEL=INFO
 puppetModules_toInstall=(
 	"stahnma-epel"
 	"yguenane-repoforge"
+	"stankevich-python"
+	"shr3kst3r-glacier"
+
 )
 
 main() {
@@ -35,7 +38,8 @@ baseSystem() {
 	yum -d 0 -e 0 -y groupinstall "Development tools"
 	yum -d 0 -e 0 -y install \
 		vim git wget \
-		zlib-devel openssl-devel
+		zlib-devel openssl-devel \
+		libacl-devel
 
 	bb-log-debug " - Installing Puppet repository..."
 	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
@@ -44,6 +48,7 @@ baseSystem() {
 
 	bb-log-debug " - Installing dev tools..."
 	installPython
+	installAwsCli
 
 	bb-log-debug " - Done!"
 }
@@ -81,6 +86,14 @@ installPython() {
 		bb-exit-on-error 1 "Failed to install pip2.7!"
 		easy_install-3.3 pip
 		bb-exit-on-error 1 "Failed to install pip3.3!"
+	fi
+}
+
+installAwsCli() {
+	if ! bb-exe? aws; then
+		bb-log-debug " -- Installing AWS CLI tools..."
+		pip3.3 install awscli
+		bb-exit-on-error 1 "Failed to install awscli!"
 	fi
 }
 
