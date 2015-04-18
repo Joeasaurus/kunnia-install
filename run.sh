@@ -19,6 +19,7 @@ puppetModules_toInstall=(
 	"stankevich-python"
 	"shr3kst3r-glacier"
 	"example42-autofs"
+	"garethr-docker"
 )
 
 main() {
