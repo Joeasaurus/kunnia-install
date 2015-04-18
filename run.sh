@@ -164,9 +164,9 @@ puppetModules() {
 executeScripts() {
 	local dir="$1"
 	export FACTER_rundir="$(pwd)/$dir"
-	for puppetFile in $(ls $dir); do
+	for puppetFile in $(ls $dir/*.pp); do
 		bb-log-debug " - Applying $puppetFile..."
-		puppet apply "$dir/$puppetFile"
+		puppet apply "$puppetFile"
 		bb-exit-on-error 1 "Puppet apply failed!"
 	done
 	bb-log-debug " - Done!"
