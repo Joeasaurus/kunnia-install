@@ -18,7 +18,7 @@ puppetModules_toInstall=(
 	"stahnma-epel"
 	"stankevich-python"
 	"shr3kst3r-glacier"
-	"pdxcat-autofs"
+	"example42-autofs"
 )
 
 main() {
@@ -61,6 +61,7 @@ baseSystem() {
 			   libacl-devel
 
 	bb-log-debug " - Installing system-level dependencies..."
+	yumInstall autofs
 	installS3Fuse
 
 	bb-log-debug " - Installing Puppet repository..."
@@ -161,6 +162,7 @@ puppetModules() {
 
 executeScripts() {
 	local dir="$1"
+	export FACTER_rundir="$(pwd)/$dir"
 	for puppetFile in $(ls $dir); do
 		bb-log-debug " - Applying $puppetFile..."
 		puppet apply "$dir/$puppetFile"
