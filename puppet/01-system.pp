@@ -5,12 +5,12 @@ class {'epel':}
 
 ## Disks
 class {'autofs':
-	template => "${::rundir}/autofs.master.erb",
+	source => "${::rundir}/autofs.master",
 }
 file {'/etc/auto.as3':
-	ensure  => present,
-	content => template("${::rundir}/autofs.as3.erb"),
-	notify  => Service['autofs']
+	ensure => present,
+	source => "${::rundir}/autofs.as3",
+	notify => Service['autofs']
 }
 
 ## Tools
