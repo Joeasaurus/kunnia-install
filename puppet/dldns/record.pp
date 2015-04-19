@@ -13,8 +13,7 @@ define dldns::record (
 		if (masterless) {
 			::dldns::r53u {$rtitle:
 				record      => $record,
-				call_binary => true,
-				require     => Class['::dldns::install']
+				call_binary => true
 			}
 		} else {
 			@@::dldns::r53u {$rtitle:

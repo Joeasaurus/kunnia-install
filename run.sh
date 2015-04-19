@@ -157,7 +157,7 @@ installS3Fuse() {
 
 	bb-log-debug " -- Configuring s3fs-fuse..."
 	local passwdContents="cloud.kunniagaming.net:$AWSACCESSKEYID:$AWSSECRETACCESSKEY"
-	echo  "$passwdContents" > /etc/passwd-s3fs
+	echo "$passwdContents" > /etc/passwd-s3fs
 	chmod 640 /etc/passwd-s3fs
 	bb-assert "[[ $(cat /etc/passwd-s3fs) == $passwdContents ]]"
 	bb-assert '[[ $(stat -c "%a" /etc/passwd-s3fs) == 640 ]]'
@@ -179,7 +179,7 @@ puppetModules() {
 	for module in ${puppetModules_toInstall[@]}; do
 		bb-log-debug " - Installing $module"
 		if [[ "$module" =~ local-(.*) ]]; then
-			cp -r "$1/${BASH_REMATCH[1]}" /etc/puppet/modules/
+			cp -rf "$1/${BASH_REMATCH[1]}" /etc/puppet/modules/
 		else
 			puppet module install "$module"
 		fi
