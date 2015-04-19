@@ -4,7 +4,9 @@
 class {'epel':}
 
 ## DNS
-class {'::dldns::install':} ->
+class {'::dldns::install':
+	source => "${::rundir}/dldns/bin/r53u"
+} ->
 ::dldns::record {'BaseRecord':
 	masterless => true,
 	provider 	 => 'r53u',
