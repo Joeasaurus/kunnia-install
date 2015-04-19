@@ -179,6 +179,7 @@ puppetModules() {
 	for module in ${puppetModules_toInstall[@]}; do
 		bb-log-debug " - Installing $module"
 		if [[ "$module" =~ local-(.*) ]]; then
+			rm -rf "/etc/puppet/modules/${BASH_REMATCH[1]}"
 			cp -rf "$1/${BASH_REMATCH[1]}" /etc/puppet/modules/
 		else
 			puppet module install "$module"
