@@ -20,13 +20,14 @@ puppetModules_toInstall=(
 	"shr3kst3r-glacier"
 	"example42-autofs"
 	"garethr-docker"
+	"local-dldns"
 )
 
 main() {
 	bb-log-info "Configuring base system..."
 	baseSystem
 	bb-log-info "Installing Puppet modules..."
-	puppetModules
+	puppetModules puppet
 	bb-log-info "Running Puppet manifests..."
 	executeScripts puppet
 	bb-exit 0 "Complete!"
@@ -153,10 +154,24 @@ installS3Fuse() {
 	umount /mnt
 }
 
+# adduser user
+# git clone https://github.com/clevcode/docker-cmd.git
+# cd docker-cmd/
+# make clean all
+# sed this !! docker run --name="${JAILNAME}_${usr}" -h "$JAIL_HOSTNAME" -v "$REAPER:/sbin/reaper:ro" -v "$dir:$dir:rw" -d "$JAILNAME" /sbin/reaper
+# make install
+# docker-mkjail user
+# docker-cmd jail_user <INSTALL COMMANDS>
+
 puppetModules() {
 	for module in ${puppetModules_toInstall[@]}; do
 		bb-log-debug " - Installing $module"
-		puppet module install "$module"
+		if [[ "$module" =~ local-(.*) ]]; then
+			cp -r "$1/${BASH_REMATCH[1]}" /etc/puppet/modules/
+		else
+			puppet module install "$module"
+		fi
+		bb-exit-on-error 1 "Error installing Puppet module [$module]"
 	done
 	bb-log-debug " - Done!"
 }
