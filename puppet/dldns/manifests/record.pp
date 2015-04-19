@@ -7,7 +7,7 @@ define dldns::record (
 	validate_hash($record)
 	validate_string($record[recordname])
 	$recordname_sha = sha1($record[recordname])
-	new_record = {
+	$new_record = {
 		title 	   => $title,
 		zone       => $record[zone],
 	    ttl        => $record[ttl],
