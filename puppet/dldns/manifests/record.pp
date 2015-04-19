@@ -16,7 +16,7 @@ define dldns::record (
 	}
 	if ($provider == 'r53') {
 		$rtitle = "R53 Record - ${recordname_sha}"
-		if (masterless) {
+		if (masterless == true) {
 			::dldns::r53u {$rtitle:
 				record      => $new_record,
 				call_binary => true

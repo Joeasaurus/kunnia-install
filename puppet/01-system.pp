@@ -9,7 +9,7 @@ class {'::dldns::install':
 } ->
 ::dldns::record {'BaseRecord':
 	masterless => true,
-	provider 	 => 'r53u',
+	provider 	 => 'r53',
 	record     => {
 		zone       => 'cloud.kunniagaming.net',
     ttl        => '300',
