@@ -5,7 +5,7 @@ class {'epel':}
 
 ## DNS
 class {'::dldns::install':
-	source => "${::rundir}/dldns/bin/r53u"
+	source => "/etc/puppet/modules/dldns/files/bin/r53u"
 } ->
 ::dldns::record {'BaseRecord':
 	masterless => true,
