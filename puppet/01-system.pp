@@ -3,6 +3,19 @@
 ## Repos
 class {'epel':}
 
+## DNS
+class {'::dldns::install':}
+::dldns::record {'BaseRecord':
+	masterless => true,
+	provider 	 => 'r53u',
+	record     => {
+		zone       => 'cloud.kunniagaming.net',
+    ttl        => '300',
+    localname  => $::ec2_public_hostname,
+    recordname => "c-1"
+	}
+}
+
 ## Disks
 class {'autofs':
 	source => "${::rundir}/autofs.master",

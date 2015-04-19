@@ -53,8 +53,9 @@ installBashBooster() {
 }
 
 baseSystem() {
-	bb-log-debug " - Preparing Yum..."
+	bb-log-debug " - Preparing System..."
 	yum groups mark convert
+	yum -d 0 -e 0 -y update
 
 	bb-log-debug " - Installing base packages..."
 	yumInstall g "Development tools"
@@ -74,8 +75,17 @@ baseSystem() {
 	bb-log-debug " - Installing dev tools..."
 	installPython
 	installAwsCli
+	installOtherTools
 
 	bb-log-debug " - Done!"
+}
+
+installOtherTools() {
+	bb-log-debug " -- Installing other dev tools..."
+	if ! bb-exe? cli53; then
+		pip2.7 install cli53
+		bb-exit-on-error 1 "Failed to install cli53!"
+	fi
 }
 
 installPython() {
@@ -123,20 +133,22 @@ installAwsCli() {
 }
 
 installS3Fuse() {
-	modprobe fuse
-	if [[ $? -eq 1 ]]; then
+	if [[ -z "$(yum list installed | grep fuse)" ]]; then
 		bb-log-debug " -- Installing FUSE kernel module..."
 		yumInstall kernel-devel libxml2-devel pkgconfig \
 				   fuse fuse-devel openssl-devel libcurl-devel \
 				   gnutls gnutls-devel nss
+		bb-exit-on-error 1 "Failed to install FUSE!"
+		modprobe fuse
+		bb-exit-on-error 1 "Failed to probe FUSE!"
 	fi
-	modprobe fuse
-	bb-exit-on-error 1 "Failed to install FUSE!"
+
 
 	if ! bb-exe? s3fs; then
 		bb-log-debug " -- Installing s3fs-fuse..."
-		git clone https://github.com/s3fs-fuse/s3fs-fuse.git && \
-		pushd s3fs-fuse && \
+		local s3TmpDir="$(bb-tmp-dir)"
+		git clone https://github.com/s3fs-fuse/s3fs-fuse.git "$s3TmpDir" && \
+		pushd "$s3TmpDir" && \
 		./autogen.sh && ./configure && \
 		make && make install && \
 		popd

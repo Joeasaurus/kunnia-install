@@ -1,10 +1,8 @@
-class dldns::collect {
-  file {'/bin/r53u':
-    ensure => file,
-    mode   => '0744',
-    owner  => 'root',
-    group  => 'root',
-    source => 'puppet:///modules/dldns/bin/r53u',
-  } ->
-  ::Dldns::R53u <<| |>>
+class dldns::collect (
+	masterless = false
+) {
+	if (!defined(File['/bin/r53u'])) {
+		fail('Error: Binary not installed. Try including ::dldns::install?')
+	}
+	::Dldns::R53u <<| |>>
 }
