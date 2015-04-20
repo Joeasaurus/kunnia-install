@@ -59,7 +59,7 @@ baseSystem() {
 
 	bb-log-debug " - Installing base packages..."
 	yumInstall g "Development tools"
-	yumInstall vim git wget \
+	yumInstall vim git wget unzip\
 			   zlib-devel openssl-devel \
 			   libacl-devel
 
@@ -68,7 +68,7 @@ baseSystem() {
 	installS3Fuse
 
 	bb-log-debug " - Installing Puppet repository..."
-	rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+	rpm -i --quiet http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
 	bb-log-debug " - Installing Puppet..."
 	yumInstall puppet
 

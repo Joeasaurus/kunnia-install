@@ -4,7 +4,7 @@
 export AWSACCESSKEYID="XXXX"
 export AWSSECRETACCESSKEY="XXXX"
 
-yum -y install git
+yum -y install git wget unzip
 rm -rf /tmp/install
 git clone https://github.com/Joeasaurus/kunnia-install.git /tmp/install
 cd /tmp/install
