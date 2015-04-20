@@ -2,8 +2,6 @@
 define dldns::r53u (
   $record
 ) {
-  any2array($record)
-
   $default_type = 'CNAME'
   $default_ttl = '900'
 
