@@ -3,6 +3,9 @@ define dldns::record (
 	$provider   = 'r53',
 	$record
 ) {
+	if (! defined(Class['::dldns::install'])) {
+		fail('Error: You must declare ::dldns::install before declaring records!')
+	}
 	validate_string($provider)
 	validate_hash($record)
 	validate_string($record[recordname])
@@ -18,7 +21,7 @@ define dldns::record (
 		$rtitle = "R53 Record - ${recordname_sha}"
 		if ($masterless) {
 			::dldns::r53u {$rtitle:
-				record      => $new_record
+				record => $new_record
 			}
 		} else {
 			@@::dldns::r53u {$rtitle:
