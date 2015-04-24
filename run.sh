@@ -54,6 +54,7 @@ installBashBooster() {
 
 baseSystem() {
 	bb-log-debug " - Preparing System..."
+	mountDisk /dev/xvdb /opt
 	yum groups mark convert
 	yum -d 0 -e 0 -y update
 
@@ -78,6 +79,15 @@ baseSystem() {
 	installOtherTools
 
 	bb-log-debug " - Done!"
+}
+
+mountDisk() {
+	# This is crude, ideally the OS would use the whole first disk so we could expand it.
+	if [[ "$(fdisk -l | grep $1)" ]]; then
+		mkfs.ext4 "$1" && mount -t ext4 "$1" "$2"
+	else
+		echo "mountDisk: $1 not present, skipping mount."
+	fi
 }
 
 installOtherTools() {
@@ -165,6 +175,8 @@ installS3Fuse() {
 	bb-assert 's3fs cloud.kunniagaming.net /mnt'
 	umount /mnt
 }
+
+
 
 # adduser user
 # git clone https://github.com/clevcode/docker-cmd.git
