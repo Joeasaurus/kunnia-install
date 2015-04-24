@@ -5,7 +5,7 @@ python::pip {'Attic':
 }
 file {'/usr/local/bin/attic-wrapper':
   ensure  => present,
-  mode    => '0700',
+  mode    => '0755',
   source  => "${::rundir}/attic-wrapper.sh",
   require => Python::Pip['Attic']
 }

@@ -16,6 +16,7 @@ export BB_LOG_LEVEL
 
 puppetModules_toInstall=(
 	"stahnma-epel"
+	"spiette-selinux"
 	"stankevich-python"
 	"shr3kst3r-glacier"
 	"example42-autofs"
@@ -60,13 +61,12 @@ baseSystem() {
 
 	bb-log-debug " - Installing base packages..."
 	yumInstall g "Development tools"
-	yumInstall vim git wget unzip\
+	yumInstall vim git wget unzip \
 			   zlib-devel openssl-devel \
 			   libacl-devel
 
 	bb-log-debug " - Installing system-level dependencies..."
 	yumInstall autofs
-	installS3Fuse
 
 	bb-log-debug " - Installing Puppet repository..."
 	rpm -i --quiet http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
@@ -141,42 +141,6 @@ installAwsCli() {
 		bb-exit-on-error 1 "Failed to install awscli!"
 	fi
 }
-
-installS3Fuse() {
-	if [[ -z "$(yum list installed | grep fuse)" ]]; then
-		bb-log-debug " -- Installing FUSE kernel module..."
-		yumInstall kernel-devel libxml2-devel pkgconfig \
-				   fuse fuse-devel openssl-devel libcurl-devel \
-				   gnutls gnutls-devel nss
-		bb-exit-on-error 1 "Failed to install FUSE!"
-		modprobe fuse
-		bb-exit-on-error 1 "Failed to probe FUSE!"
-	fi
-
-
-	if ! bb-exe? s3fs; then
-		bb-log-debug " -- Installing s3fs-fuse..."
-		local s3TmpDir="$(bb-tmp-dir)"
-		git clone https://github.com/s3fs-fuse/s3fs-fuse.git "$s3TmpDir" && \
-		pushd "$s3TmpDir" && \
-		./autogen.sh && ./configure && \
-		make && make install && \
-		popd
-		bb-exit-on-error 1 "Failed to install s3fs-fuse!"
-	fi
-
-	bb-log-debug " -- Configuring s3fs-fuse..."
-	local passwdContents="cloud.kunniagaming.net:$AWSACCESSKEYID:$AWSSECRETACCESSKEY"
-	echo "$passwdContents" > /etc/passwd-s3fs
-	chmod 640 /etc/passwd-s3fs
-	bb-assert "[[ $(cat /etc/passwd-s3fs) == $passwdContents ]]"
-	bb-assert '[[ $(stat -c "%a" /etc/passwd-s3fs) == 640 ]]'
-	bb-log-debug " -- Testing mount capability..."
-	bb-assert 's3fs cloud.kunniagaming.net /mnt'
-	umount /mnt
-}
-
-
 
 # adduser user
 # git clone https://github.com/clevcode/docker-cmd.git

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AWS_BUCKET="cloud.kunniagaming.net"
-AWS_COMMAND="aws --region $(/usr/local/bin/aws s3api get-bucket-location --output text --bucket $AWS_BUCKET)"
+AWS_COMMAND="/usr/local/bin/aws --region $(/usr/local/bin/aws s3api get-bucket-location --output text --bucket $AWS_BUCKET)"
 
 USER_ROOT=/opt
 
@@ -23,7 +23,7 @@ if [[ -n "$($AWS_COMMAND s3 ls s3://$AWS_BUCKET/$USER_NAME)" ]]; then
 	echo "++ Found existing home directory for $USER_NAME, syncing it down!"
 	rm -rf "$USER_HOME/*" && rm -rf "$USER_HOME/.*"
 	[[ $? -ne 0 ]] && echo "-- Could not clear $USER_HOME before sync!" && exit 1
-	"$AWS_COMMAND" s3 sync "s3://$AWS_BUCKET/$USER_NAME" "$USER_HOME"
+	$AWS_COMMAND s3 sync "s3://$AWS_BUCKET/$USER_NAME" "$USER_HOME"
 	[[ $? -ne 0 ]] && echo "-- Could not sync $USER_HOME down!" && exit 1
 else
 	echo "++ No directory found for $USER_NAME, I will create one.."

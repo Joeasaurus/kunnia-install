@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 AWS_BUCKET="cloud.kunniagaming.net"
-AWS_COMMAND="aws --region $(/usr/local/bin/aws s3api get-bucket-location --output text --bucket $AWS_BUCKET)"
+AWS_COMMAND="/usr/local/bin/aws --region $(/usr/local/bin/aws s3api get-bucket-location --output text --bucket $AWS_BUCKET)"
 
 COMMAND="$1"
-[[ "$COMMAND" !== "attic" ]] && echo "Wrong command" && exit 5
+[[ "$COMMAND" != "attic" ]] && echo "Wrong command" && exit 5
 shift
 
 /usr/local/bin/attic $@

@@ -1,1 +1,0 @@
-s3-cloud.kunniagaming.net -fstype=fuse,enable_content_md5,allow_other,retries=10 :s3fs\#cloud\.kunniagaming\.net
