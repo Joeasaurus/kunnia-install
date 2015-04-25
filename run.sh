@@ -165,9 +165,17 @@ puppetModules() {
 	bb-log-debug " - Done!"
 }
 
+setFact() {
+	local factName="$1"
+	local factData="$2"
+	mkdir -p /etc/facter/facts.d
+	echo "$1=$2" > "/etc/facter/facts.d/$1.txt"
+	facter | grep "$1"
+}
+
 executeScripts() {
 	local dir="$1"
-	export FACTER_rundir="$(pwd)/$dir"
+	setFact rundir "$(pwd)/$dir"
 	for puppetFile in $(ls $dir/*.pp); do
 		bb-log-debug " - Applying $puppetFile..."
 		puppet apply "$puppetFile"

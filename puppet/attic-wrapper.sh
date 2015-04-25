@@ -20,7 +20,7 @@ shift
 
 /usr/local/bin/attic $@
 if [[ $? -eq 0 ]]; then
-	"$AWS_COMMAND" s3 sync "$HOME" "s3://$AWS_BUCKET/$USER"
+	$AWS_COMMAND s3 sync "$HOME" "s3://$AWS_BUCKET/$USER"
 	[[ $? -ne 0 ]] && exit_clean "!! FAILED TO SYNC TO S3 !!" 2
 else
 	exit_clean "!! FAILED TO RUN ATTIC !!" 1
