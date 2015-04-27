@@ -16,6 +16,7 @@ export BB_LOG_LEVEL
 
 puppetModules_toInstall=(
 	"stahnma-epel"
+	"xdrum-rsyslog"
 	"spiette-selinux"
 	"stankevich-python"
 	"shr3kst3r-glacier"
@@ -27,6 +28,8 @@ puppetModules_toInstall=(
 main() {
 	bb-log-info "Configuring base system..."
 	baseSystem
+	bb-log-info "Installing Mumble..."
+	installMumble
 	bb-log-info "Installing Puppet modules..."
 	puppetModules puppet
 	bb-log-info "Running Puppet manifests..."
@@ -142,6 +145,66 @@ installAwsCli() {
 	fi
 }
 
+installMumble() {
+	if ! bb-exe? /usr/local/murmur/murmur.x86; then
+		local mumbleTar="$(bb-download http://downloads.sourceforge.net/project/mumble/Mumble/1.2.8/murmur-static_x86-1.2.8.tar.bz2)"
+		local mumbleTmp="$(bb-tmp-dir)"
+		pushd "$mumbleTmp"
+			tar xvjf "$mumbleTar"
+			mv ./murmur-static_x86-1.2.8 /usr/local/murmur
+		popd
+
+		cat > /etc/murmur.ini <<ENDOFINI
+database=
+dbus=session
+autobanAttempts = 10
+autobanTimeframe = 120
+autobanTime = 300
+logfile=/var/log/murmur/murmur.log
+pidfile=/var/run/murmur/murmur.pid
+port=14000
+welcometext="<br />Welcome to the <a href='http://www.kunniagaming.net'>KunniaGaming</a> Mumble Server!"
+serverpassword=
+bandwidth=72000
+users=100
+registerName=KunniaGaming
+registerPassword=mumbleass
+registerUrl=http://mumble.kunniagaming.net/
+registerHostname=mumble.kunniagaming.net
+uname=murmur
+sendversion=True
+[Ice]
+Ice.Warn.UnknownProperties=1
+Ice.MessageSizeMax=65536
+ENDOFINI
+
+		groupadd -r murmur
+		useradd -r -g murmur -m -d /var/lib/murmur -s /sbin/nologin murmur
+		mkdir /var/log/murmur /var/run/murmur
+		chown murmur:murmur /var/log/murmur /var/run/murmur
+		chmod 0770 /var/log/murmur /var/run/murmur
+
+		cat > /etc/systemd/system/murmur.service <<ENDOFSERVICE
+[Unit]
+Description=Mumble Server (Murmur)
+Requires=network-online.target
+After=network-online.target mysqld.service time-sync.target
+
+[Service]
+User=murmur
+Type=forking
+PIDFile=/var/run/murmur/murmur.pid
+ExecStart=/usr/local/murmur/murmur.x86 -ini /etc/murmur.ini
+
+[Install]
+WantedBy=multi-user.target
+ENDOFSERVICE
+
+		echo "d /var/run/murmur 775 murmur murmur" > /etc/tmpfiles.d/murmur.conf
+		systemctl daemon-reload
+	fi
+}
+
 # adduser user
 # git clone https://github.com/clevcode/docker-cmd.git
 # cd docker-cmd/
@@ -178,7 +241,7 @@ executeScripts() {
 	setFact rundir "$(pwd)/$dir"
 	for puppetFile in $(ls $dir/*.pp); do
 		bb-log-debug " - Applying $puppetFile..."
-		puppet apply "$puppetFile"
+		puppet apply --parser=future "$puppetFile"
 		bb-exit-on-error 1 "Puppet apply failed!"
 	done
 	bb-log-debug " - Done!"

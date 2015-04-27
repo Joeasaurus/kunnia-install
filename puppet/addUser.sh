@@ -25,6 +25,10 @@ if [[ -n "$($AWS_COMMAND s3 ls s3://$AWS_BUCKET/$USER_NAME)" ]]; then
 	[[ $? -ne 0 ]] && echo "-- Could not clear $USER_HOME before sync!" && exit 1
 	$AWS_COMMAND s3 sync "s3://$AWS_BUCKET/$USER_NAME" "$USER_HOME"
 	[[ $? -ne 0 ]] && echo "-- Could not sync $USER_HOME down!" && exit 1
+	rm -rf "$USER_HOME/.attic*"
+	mkdir -p "$USER_HOME/.attic/keys"
+	[[ ! -d "$USER_HOME/.attic/keys" ]] && \
+		echo " -- Could not create .attic dirs" && exit 1
 else
 	echo "++ No directory found for $USER_NAME, I will create one.."
 	mkdir -p "$USER_HOME/.ssh"

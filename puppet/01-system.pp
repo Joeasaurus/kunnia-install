@@ -1,7 +1,18 @@
 ### System ###
 
 ## Repos
-class {'epel':}
+class {'::epel':}
+
+## Logging
+class {'::rsyslog':
+  default_config => true
+}
+rsyslog::snippet {'10-httpd':
+  lines => [
+    'httpderr.* /var/log/httpd/error.log',
+    'httpdacc.* /var/log/httpd/access.log'
+  ]
+}
 
 ## DNS
 class {'::dldns::install':
@@ -19,7 +30,7 @@ class {'::dldns::install':
 }
 
 ## Tools
-class { 'docker':
+class { '::docker':
   dns => '8.8.8.8',
 }
 

@@ -13,3 +13,8 @@ file {'/usr/local/bin/attic-wrapper':
 docker::image {'centos':
   image_tag => '7'
 }
+
+service {'murmur':
+  ensure      => running,
+  enable      => true
+}
