@@ -40,7 +40,7 @@ class {'::dldns::install':
   },
   require    => Class['::dldns::install']
 }
-::dldns::record {'MumbleRecord':
+::dldns::record {'BackupRecord':
   masterless => true,
   provider   => 'r53',
   record     => {
