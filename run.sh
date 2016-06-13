@@ -72,9 +72,10 @@ baseSystem() {
 	yumInstall autofs
 
 	bb-log-debug " - Installing Puppet repository..."
-	rpm -i --quiet http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+	rpm -i --quiet https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+	#http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
 	bb-log-debug " - Installing Puppet..."
-	yumInstall puppet
+	yumInstall puppet-agent
 
 	bb-log-debug " - Installing dev tools..."
 	installPython
@@ -96,7 +97,9 @@ mountDisk() {
 installOtherTools() {
 	bb-log-debug " -- Installing other dev tools..."
 	if ! bb-exe? cli53; then
-		pip2.7 install cli53
+		#pip2.7 install cli53
+		wget https://github.com/barnybug/cli53/releases/download/0.7.4/cli53-linux-amd64 -O /usr/local/bin/cli53
+		chmod +x /usr/local/bin/cli53
 		bb-exit-on-error 1 "Failed to install cli53!"
 	fi
 }
